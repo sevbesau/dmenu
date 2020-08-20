@@ -40,4 +40,4 @@ Configuring dmenu
 My implementation of dmenu_run looks for $XDG_CONFIG_HOME/dmenu/.dmenurc 
 This file exports a variable $DMENU which points to a dmenu command with all the flags you want globally.
 This way you can have a global dmenu config.
-
+The same concept can be implemented in your own scripts, see dmenu_run for inspiration.
