@@ -6,4 +6,4 @@ else
   DMENU='dmenu'
 fi
 
-dmenu_path | $DMENU "$@" | ${SHELL:-"/bin/sh"} &
+dmenu_path | $DMENU "$@" -l 10 | ${SHELL:-"/bin/sh"} &

@@ -10,10 +10,11 @@ static const char *fonts[] = {
 };
 static const char *prompt      = NULL;      /* -p  option; prompt to the left of input field */
 static const char *colors[SchemeLast][2] = {
-	/*     fg         bg       */
-	[SchemeNorm] = { "#bbbbbb", "#222222" },
-	[SchemeSel] = { "#eeeeee", "#005577" },
-	[SchemeOut] = { "#000000", "#00ffff" },
+	              /*     fg         bg       */
+	//[SchemeNorm] = { "#bbbbbb", "#222222" },
+	[SchemeNorm] = { "#f8f8f2", "#272822" }, // the unselected parts
+	[SchemeSel]  = { "#272822", "#a6e22e" }, // the selected parts
+	[SchemeOut]  = { "#000000", "#00ffff" }, // 
 };
 /* -l and -g options; controls number of lines and columns in grid if > 0 */
 static unsigned int lines      = 0;
@@ -29,4 +30,4 @@ static unsigned int columns    = 0;
 static const char worddelimiters[] = " ";
 
 /* Size of the window border */
-static const unsigned int border_width = 5;
+static const unsigned int border_width = 3;
