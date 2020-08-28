@@ -12,18 +12,18 @@ static const char *prompt      = NULL;      /* -p  option; prompt to the left of
 static const char *colors[SchemeLast][2] = {
 /*														   fg         bg       */
 	[SchemeNorm] =					 { "#f8f8f2", "#272822" }, // the unselected parts
-	[SchemeSel]  =					 { "#f8f8f2", "#272822" }, // the selected parts
-	[SchemeOut]  =					 { "#000000", "#00ffff" }, // 
+	[SchemeSel]  =					 { "#f8f8f2", "#202020" }, // the selected parts
+	[SchemeOut]  =					 { "#000000", "#000000" }, // 
 	[SchemeSelHighlight] =	 { "#a6e22e", "#272822" },
 	[SchemeNormHighlight] =  { "#a6e22e", "#272822" },
 
 };
 /* -l and -g options; controls number of lines and columns in grid if > 0 */
 static unsigned int lines      = 0;
-static unsigned int maxhist		 = 15;
-static int histnodup           = 1;	/* if 0, record repeated histories */
-static unsigned int lineheight = 0;
 static unsigned int columns    = 0;
+static unsigned int lineheight = 0;
+static unsigned int maxhist		 = 100;
+static int histnodup           = 0;	/* if 0, record repeated histories */
 
 /*
  * Characters not considered part of a word while deleting words
