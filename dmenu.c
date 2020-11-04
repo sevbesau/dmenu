@@ -831,17 +831,45 @@ buttonpress(XEvent *e)
 	/* input field */
 	w = (lines > 0 || !matches) ? mw - x : inputw;
 
-	/* left-click on input: clear input,
-	 * NOTE: if there is no left-arrow the space for < is reserved so
-	 *       add that to the input width */
-	if (ev->button == Button1 &&
-	   ((lines <= 0 && ev->x >= 0 && ev->x <= x + w +
-	   ((!prev || !curr->left) ? TEXTW("<") : 0)) ||
-	   (lines > 0 && ev->y >= y && ev->y <= y + h))) {
-		insert(NULL, -cursor);
-		drawmenu();
-		return;
+	if (ev->button == Button1) {
+	  if (((lines <= 0 && ev->x >= 0 && ev->x <= x + w +
+	  ((!prev || !curr->left) ? TEXTW("<") : 0)) ||
+	  (lines > 0 && ev->y >= y && ev->y <= y + h))) {
+      // left-click on input -> clear input
+		  insert(NULL, -cursor);
+		  drawmenu();
+		  return;
+    } else if (lines > 0 && ev->y >= y && ev->y <= y+(lines*h) && ev->x >= x && ev->x <= x + w){
+      w = mw - x;
+		  for (item = curr; item != next; item = item->right) {
+			  y += h;
+			  if (ev->y >= y && ev->y <= (y + h)) {
+			  	sel = item;
+          if (sel) {
+			  		sel->out = 1;
+			  		drawmenu();
+			  	}
+          if (sel && issel(sel->id)) {
+			    	for (int i = 0;i < selidsize;i++)
+			    		if (selid[i] == sel->id)
+			    			selid[i] = -1;
+			    } else {
+			    	for (int i = 0;i < selidsize;i++)
+			    		if (selid[i] == -1) {
+			    			selid[i] = sel->id;
+			    			return;
+			    		}
+			    	selidsize++;
+			    	selid = realloc(selid, (selidsize + 1) * sizeof(int));
+			    	selid[selidsize - 1] = sel->id;
+			    }
+			  	drawmenu();
+			  	return;
+			  }
+		  }
+    }
 	}
+
 	/* middle-mouse click: paste selection */
 	if (ev->button == Button2) {
 		XConvertSelection(dpy, (ev->state & ShiftMask) ? clip : XA_PRIMARY,
