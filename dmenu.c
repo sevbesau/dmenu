@@ -820,53 +820,99 @@ buttonpress(XEvent *e)
 
 	if (ev->window != win)
 		return;
-
-	/* right-click: exit */
-	if (ev->button == Button3)
-		exit(1);
-
+  
 	if (prompt && *prompt)
 		x += promptw;
 
 	/* input field */
 	w = (lines > 0 || !matches) ? mw - x : inputw;
 
+	/* right-click: highlight item */
+	if (ev->button == Button3) {
+
+    w = mw - x;
+		for (item = curr; item != next; item = item->right) {
+		  y += h;
+		  if (ev->y >= y && ev->y <= (y + h)) {
+		  	sel = item;
+        if (sel) {
+		  		sel->out = 1;
+		  		drawmenu();
+		  	}
+        if (sel && issel(sel->id)) {
+		    	for (int i = 0;i < selidsize;i++)
+		    		if (selid[i] == sel->id)
+		    			selid[i] = -1;
+		    } else {
+		    	for (int i = 0;i < selidsize;i++)
+		    		if (selid[i] == -1) {
+		    			selid[i] = sel->id;
+              drawmenu();
+		    			return;
+		    		}
+		    	selidsize++;
+		    	selid = realloc(selid, (selidsize + 1) * sizeof(int));
+		    	selid[selidsize - 1] = sel->id;
+		    }
+		  	drawmenu();
+		  	return;
+		  }
+		}
+
+		//exit(1);
+  }
+
+  /* left-click: exit / enter input */
 	if (ev->button == Button1) {
 	  if (((lines <= 0 && ev->x >= 0 && ev->x <= x + w +
 	  ((!prev || !curr->left) ? TEXTW("<") : 0)) ||
 	  (lines > 0 && ev->y >= y && ev->y <= y + h))) {
-      // left-click on input -> clear input
-		  insert(NULL, -cursor);
-		  drawmenu();
-		  return;
-    } else if (lines > 0 && ev->y >= y && ev->y <= y+(lines*h) && ev->x >= x && ev->x <= x + w){
+      // left-click on input -> exit
+      exit(1);
+    } else if (lines > 0 && ev->y >= y && ev->y <= y+((lines+1)*h) && ev->x >= x && ev->x <= x + w){
+      // left-click on item -> highlight item and enter 
+      // highlighting item
       w = mw - x;
 		  for (item = curr; item != next; item = item->right) {
-			  y += h;
-			  if (ev->y >= y && ev->y <= (y + h)) {
-			  	sel = item;
+		    y += h;
+		    if (ev->y >= y && ev->y <= (y + h)) {
+		    	sel = item;
           if (sel) {
-			  		sel->out = 1;
-			  		drawmenu();
-			  	}
+		    		sel->out = 1;
+		    		drawmenu();
+		    	}
           if (sel && issel(sel->id)) {
-			    	for (int i = 0;i < selidsize;i++)
-			    		if (selid[i] == sel->id)
-			    			selid[i] = -1;
-			    } else {
-			    	for (int i = 0;i < selidsize;i++)
-			    		if (selid[i] == -1) {
-			    			selid[i] = sel->id;
-			    			return;
-			    		}
-			    	selidsize++;
-			    	selid = realloc(selid, (selidsize + 1) * sizeof(int));
-			    	selid[selidsize - 1] = sel->id;
-			    }
-			  	drawmenu();
-			  	return;
-			  }
+		      	for (int i = 0;i < selidsize;i++)
+		      		if (selid[i] == sel->id)
+		      			selid[i] = -1;
+		      } else {
+		      	for (int i = 0;i < selidsize;i++)
+		      		if (selid[i] == -1) {
+		      			selid[i] = sel->id;
+                break;
+		      		}
+		      	selidsize++;
+		      	selid = realloc(selid, (selidsize + 1) * sizeof(int));
+		      	selid[selidsize - 1] = sel->id;
+		      }
+		    	drawmenu();
+		    }
 		  }
+      
+      // entering selections
+      for (int i = 0;i < selidsize;i++)
+		  	if (selid[i] != -1 && (!sel || sel->id != selid[i]))
+		  		puts(items[selid[i]].text);
+		  if (sel && !(ev->state & ShiftMask))
+		  	puts(sel->text);
+		  else
+		  	puts(text);
+		  savehistory((sel && !(ev->state & ShiftMask))
+		  	    ? sel->text : text);
+		  cleanup();
+		  exit(0);
+    } else {
+      exit(1);
     }
 	}
 
